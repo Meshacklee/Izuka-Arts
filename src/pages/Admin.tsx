@@ -5,6 +5,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { auth, db, googleProvider, storage } from '../firebase';
 import { useAuth } from '../AuthContext';
 import { Button } from '../components/ui/button';
+import { cn } from '../lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -17,6 +18,7 @@ import { ScrollArea } from '../components/ui/scroll-area';
 export default function Admin() {
   const { user, role, loading: authLoading, connectionIssue } = useAuth();
   const [uploading, setUploading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [artworks, setArtworks] = useState<any[]>([]);
 
@@ -30,13 +32,17 @@ export default function Admin() {
   const [thumbFile, setThumbFile] = useState<File | null>(null);
 
   const handleLogin = async () => {
+    setLoginError(null);
     try {
       await signInWithPopup(auth, googleProvider);
       toast.success("Logged in successfully");
     } catch (error: any) {
       console.error("Login error:", error);
+      setLoginError(error.code || error.message);
       if (error.code === 'auth/popup-blocked') {
         toast.error("Popup blocked! Please allow popups for this site.");
+      } else if (error.code === 'auth/popup-closed-by-user') {
+        toast.error("Sign-in window was closed. Please try again and keep the window open until finished.");
       } else if (error.code === 'auth/network-request-failed' || connectionIssue) {
         toast.error("Network error: Firebase is unreachable. Please try the 'Open in New Tab' button above.");
       } else {
@@ -163,27 +169,37 @@ export default function Admin() {
             <CardDescription>Please sign in to manage your gallery</CardDescription>
           </CardHeader>
           <CardContent className="pb-10 flex flex-col items-center">
-            {connectionIssue && (
-              <div className="mb-6 p-6 bg-amber-50 border border-amber-200 rounded-3xl text-amber-900 text-sm text-center shadow-sm">
+            {(connectionIssue || loginError) && (
+              <div className={cn(
+                "mb-6 p-6 rounded-3xl text-sm text-center shadow-sm border",
+                connectionIssue ? "bg-amber-50 border-amber-200 text-amber-900" : "bg-neutral-50 border-neutral-200 text-neutral-900"
+              )}>
                 <div className="flex justify-center mb-3">
-                  <div className="p-2 bg-amber-100 rounded-full">
-                    <WifiOff className="h-6 w-6 text-amber-600" />
+                  <div className={cn("p-2 rounded-full", connectionIssue ? "bg-amber-100" : "bg-neutral-100")}>
+                    {connectionIssue ? <WifiOff className="h-6 w-6 text-amber-600" /> : <LogIn className="h-6 w-6 text-neutral-600" />}
                   </div>
                 </div>
-                <h3 className="font-bold text-lg mb-2">Connection Blocked</h3>
-                <p className="mb-4 text-amber-800">
-                  Your current network is blocking the connection to our secure login servers. This is common on restricted or corporate networks.
+                <h3 className="font-bold text-lg mb-2">
+                  {connectionIssue ? "Connection Blocked" : "Login Issue Detected"}
+                </h3>
+                <p className="mb-4 opacity-80">
+                  {connectionIssue 
+                    ? "Your current network is blocking the connection to our secure login servers."
+                    : "There was a problem with the sign-in popup. This often happens inside an iframe."}
                 </p>
                 <div className="space-y-3">
                   <Button 
                     variant="outline" 
-                    className="w-full rounded-full border-amber-300 hover:bg-amber-100 text-amber-900"
+                    className={cn(
+                      "w-full rounded-full border shadow-sm",
+                      connectionIssue ? "border-amber-300 hover:bg-amber-100 text-amber-900" : "border-neutral-300 hover:bg-neutral-100 text-neutral-900"
+                    )}
                     onClick={() => window.open(window.location.href, '_blank')}
                   >
-                    Try Opening in New Tab
+                    Open App in New Tab
                   </Button>
-                  <p className="text-[10px] text-amber-600 italic">
-                    If the button above doesn't work, use the "Open in new tab" icon in the top-right corner of the AI Studio preview window.
+                  <p className={cn("text-[10px] italic", connectionIssue ? "text-amber-600" : "text-neutral-500")}>
+                    Opening the app in its own tab usually fixes login and popup issues.
                   </p>
                 </div>
               </div>
