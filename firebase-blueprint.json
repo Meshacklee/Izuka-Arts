@@ -1,0 +1,39 @@
+{
+  "entities": {
+    "Artwork": {
+      "title": "Artwork",
+      "description": "A piece of art displayed in the gallery.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Title of the artwork" },
+        "description": { "type": "string", "description": "Description of the artwork" },
+        "type": { "type": "string", "enum": ["image", "video", "audio"], "description": "Type of media" },
+        "url": { "type": "string", "format": "uri", "description": "URL to the media file" },
+        "thumbnailUrl": { "type": "string", "format": "uri", "description": "URL to the thumbnail image" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "authorId": { "type": "string", "description": "UID of the admin who uploaded it" }
+      },
+      "required": ["title", "type", "url", "createdAt", "authorId"]
+    },
+    "User": {
+      "title": "User",
+      "description": "User profile information.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string", "enum": ["admin", "visitor"] }
+      },
+      "required": ["email", "role"]
+    }
+  },
+  "firestore": {
+    "/artworks/{artworkId}": {
+      "schema": "Artwork",
+      "description": "Collection of artworks."
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles."
+    }
+  }
+}
