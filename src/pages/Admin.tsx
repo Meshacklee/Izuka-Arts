@@ -43,6 +43,9 @@ export default function Admin() {
         toast.error("Popup blocked! Please allow popups for this site.");
       } else if (error.code === 'auth/popup-closed-by-user') {
         toast.error("Sign-in window was closed. Please try again and keep the window open until finished.");
+      } else if (error.message?.includes('redirect_uri_mismatch') || error.code === 'auth/invalid-auth-event') {
+        setLoginError('redirect_mismatch');
+        toast.error("Configuration error: Redirect URI mismatch. Please see the instructions on the page.");
       } else if (error.code === 'auth/network-request-failed' || connectionIssue) {
         toast.error("Network error: Firebase is unreachable. Please try the 'Open in New Tab' button above.");
       } else {
@@ -180,13 +183,28 @@ export default function Admin() {
                   </div>
                 </div>
                 <h3 className="font-bold text-lg mb-2">
-                  {connectionIssue ? "Connection Blocked" : "Login Issue Detected"}
+                  {connectionIssue ? "Connection Blocked" : loginError === 'redirect_mismatch' ? "Configuration Error" : "Login Issue Detected"}
                 </h3>
                 <p className="mb-4 opacity-80">
                   {connectionIssue 
                     ? "Your current network is blocking the connection to our secure login servers."
+                    : loginError === 'redirect_mismatch'
+                    ? "The login domain is not authorized in your Google Cloud Console."
                     : "There was a problem with the sign-in popup. This often happens inside an iframe."}
                 </p>
+                
+                {loginError === 'redirect_mismatch' && (
+                  <div className="mb-4 p-3 bg-white/50 rounded-xl text-left text-[11px] space-y-2 border border-neutral-200">
+                    <p className="font-bold text-neutral-900">To fix this:</p>
+                    <ol className="list-decimal ml-4 space-y-1">
+                      <li>Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" className="text-blue-600 underline">Google Cloud Credentials</a></li>
+                      <li>Edit your <strong>OAuth 2.0 Client ID</strong></li>
+                      <li>Add <code className="bg-neutral-100 px-1">https://gen-lang-client-0924061132.firebaseapp.com</code> to <strong>Authorized JavaScript origins</strong></li>
+                      <li>Add <code className="bg-neutral-100 px-1">https://gen-lang-client-0924061132.firebaseapp.com/__/auth/handler</code> to <strong>Authorized redirect URIs</strong></li>
+                    </ol>
+                  </div>
+                )}
+
                 <div className="space-y-3">
                   <Button 
                     variant="outline" 
