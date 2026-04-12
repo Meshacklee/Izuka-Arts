@@ -138,11 +138,13 @@ export default function Admin() {
     }
   };
 
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this artwork?")) return;
     try {
       await deleteDoc(doc(db, 'artworks', id));
       toast.success("Artwork deleted");
+      setDeletingId(null);
     } catch (error) {
       toast.error("Delete failed");
     }
@@ -394,27 +396,56 @@ export default function Admin() {
                   {artworks.map((art) => (
                     <div key={art.id} className="flex items-center justify-between p-4 bg-white border border-neutral-100 rounded-2xl group hover:border-neutral-300 transition-colors">
                       <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 rounded-lg bg-neutral-100 overflow-hidden">
-                          <img 
-                            src={art.type === 'image' ? art.url : art.thumbnailUrl} 
-                            alt="" 
-                            className="w-full h-full object-cover"
-                            referrerPolicy="no-referrer"
-                          />
+                        <div className="w-12 h-12 rounded-lg bg-neutral-100 overflow-hidden flex items-center justify-center">
+                          { (art.type === 'image' ? art.url : art.thumbnailUrl) ? (
+                            <img 
+                              src={art.type === 'image' ? art.url : art.thumbnailUrl} 
+                              alt="" 
+                              className="w-full h-full object-cover"
+                              referrerPolicy="no-referrer"
+                            />
+                          ) : (
+                            <div className="text-[10px] text-neutral-300 uppercase font-bold">
+                              {art.type.substring(0, 3)}
+                            </div>
+                          )}
                         </div>
                         <div>
                           <h4 className="font-medium text-neutral-900">{art.title}</h4>
                           <p className="text-xs text-neutral-400 capitalize">{art.type}</p>
                         </div>
                       </div>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => handleDelete(art.id)}
-                        className="text-neutral-400 hover:text-red-500 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center space-x-2">
+                        {deletingId === art.id ? (
+                          <div className="flex items-center space-x-2 animate-in fade-in slide-in-from-right-2">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => setDeletingId(null)}
+                              className="text-xs text-neutral-500"
+                            >
+                              Cancel
+                            </Button>
+                            <Button 
+                              variant="destructive" 
+                              size="sm" 
+                              onClick={() => handleDelete(art.id)}
+                              className="text-xs rounded-full px-4"
+                            >
+                              Confirm Delete
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => setDeletingId(art.id)}
+                            className="text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded-full"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   ))}
                   {artworks.length === 0 && (
