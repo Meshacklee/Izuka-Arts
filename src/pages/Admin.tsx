@@ -107,15 +107,20 @@ export default function Admin() {
         finalThumbUrl = await uploadFile(thumbFile, path);
       }
 
-      await addDoc(collection(db, 'artworks'), {
+      const artworkData: any = {
         title,
         description,
         type,
         url: finalUrl,
-        thumbnailUrl: type !== 'image' ? finalThumbUrl : null,
         createdAt: serverTimestamp(),
         authorId: user.uid
-      });
+      };
+
+      if (type !== 'image' && finalThumbUrl) {
+        artworkData.thumbnailUrl = finalThumbUrl;
+      }
+
+      await addDoc(collection(db, 'artworks'), artworkData);
       toast.success("Artwork uploaded successfully");
       // Reset form
       setTitle('');
