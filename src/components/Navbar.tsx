@@ -25,8 +25,9 @@ export default function Navbar() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link to="/" className="text-2xl font-serif font-bold tracking-tighter text-neutral-900">
-              AURA<span className="text-neutral-400">.</span>
+            <Link to="/" className="text-2xl font-serif font-bold tracking-tighter text-neutral-900 flex items-center">
+              IZUKA<span className="text-blue-500 ml-1">ARTZ</span>
+              <span className="text-neutral-400">.</span>
             </Link>
             {connectionIssue && (
               <div className="flex items-center text-[10px] text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 animate-pulse">

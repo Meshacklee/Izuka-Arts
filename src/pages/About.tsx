@@ -2,8 +2,8 @@ import { motion } from 'framer-motion';
 
 export default function About() {
   return (
-    <div className="min-h-screen py-20 bg-white">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-20 bg-white relative overflow-hidden">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -14,11 +14,11 @@ export default function About() {
             <span className="text-neutral-400 text-sm font-medium tracking-widest uppercase mb-4 block">Our Story</span>
             <h1 className="text-5xl md:text-7xl font-serif font-bold text-neutral-900 leading-tight mb-8">
               Defining the <br />
-              <span className="italic">Aura</span> of Art.
+              <span className="italic text-blue-500">Artz</span> of Izuka.
             </h1>
             <div className="space-y-6 text-neutral-600 leading-relaxed">
               <p>
-                Founded in 2024, Aura Artist Platform was born from a simple yet profound realization: 
+                Izuka Artz was born from a simple yet profound realization: 
                 art in the digital age deserves a space that honors its complexity and soul.
               </p>
               <p>
@@ -28,7 +28,7 @@ export default function About() {
                 potential of digital media.
               </p>
               <p>
-                Every piece on our platform is hand-selected for its unique "aura"—that intangible 
+                Every piece on our platform is hand-selected for its unique "character"—that intangible 
                 quality that makes a work of art truly unforgettable.
               </p>
             </div>

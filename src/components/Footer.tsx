@@ -6,11 +6,12 @@ export default function Footer() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
-            <Link to="/" className="text-2xl font-serif font-bold tracking-tighter text-neutral-900">
-              AURA<span className="text-neutral-400">.</span>
+            <Link to="/" className="text-2xl font-serif font-bold tracking-tighter text-neutral-900 flex items-center">
+              IZUKA<span className="text-blue-500 ml-1">ARTZ</span>
+              <span className="text-neutral-400">.</span>
             </Link>
             <p className="mt-4 text-sm text-neutral-500 max-w-xs">
-              A curated platform for contemporary digital and traditional art. 
+              A curated platform for contemporary digital and traditional art by Izuka. 
               Exploring the boundaries of visual storytelling.
             </p>
           </div>
@@ -32,7 +33,7 @@ export default function Footer() {
         </div>
         <div className="mt-12 border-t border-neutral-100 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-xs text-neutral-400">
-            &copy; {new Date().getFullYear()} Aura Artist Platform. All rights reserved.
+            &copy; {new Date().getFullYear()} Izuka Artz. All rights reserved.
           </p>
           <div className="mt-4 md:mt-0 flex space-x-6">
             <a href="#" className="text-neutral-400 hover:text-neutral-500">Instagram</a>

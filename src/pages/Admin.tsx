@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { signInWithPopup, signOut } from 'firebase/auth';
-import { collection, addDoc, serverTimestamp, deleteDoc, doc, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, deleteDoc, doc, query, orderBy, onSnapshot, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { auth, db, googleProvider, storage } from '../firebase';
 import { useAuth } from '../AuthContext';
@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { toast } from 'sonner';
-import { LogIn, LogOut, Plus, Trash2, Video, Music, Image as ImageIcon, Loader2, WifiOff } from 'lucide-react';
+import { LogIn, LogOut, Plus, Trash2, Video, Music, Image as ImageIcon, Loader2, WifiOff, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { ScrollArea } from '../components/ui/scroll-area';
@@ -30,6 +30,7 @@ export default function Admin() {
   const [thumbnailUrl, setThumbnailUrl] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [thumbFile, setThumbFile] = useState<File | null>(null);
+  const [isFeatured, setIsFeatured] = useState(false);
 
   const handleLogin = async () => {
     setLoginError(null);
@@ -113,7 +114,8 @@ export default function Admin() {
         type,
         url: finalUrl,
         createdAt: serverTimestamp(),
-        authorId: user.uid
+        authorId: user.uid,
+        isFeatured: isFeatured
       };
 
       if (type !== 'image' && finalThumbUrl) {
@@ -129,6 +131,7 @@ export default function Admin() {
       setThumbnailUrl('');
       setFile(null);
       setThumbFile(null);
+      setIsFeatured(false);
     } catch (error) {
       toast.error("Upload failed. Check permissions.");
       console.error(error);
@@ -150,8 +153,19 @@ export default function Admin() {
     }
   };
 
+  const handleToggleFeatured = async (id: string, currentStatus: boolean) => {
+    try {
+      await updateDoc(doc(db, 'artworks', id), {
+        isFeatured: !currentStatus
+      });
+      toast.success(`Artwork ${!currentStatus ? 'featured' : 'removed from home'}`);
+    } catch (error) {
+      toast.error("Update failed");
+    }
+  };
+
   // Fetch artworks for management
-  useState(() => {
+  useEffect(() => {
     if (role === 'admin') {
       const q = query(collection(db, 'artworks'), orderBy('createdAt', 'desc'));
       const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -366,6 +380,20 @@ export default function Admin() {
                   </div>
                 )}
 
+                <div className="flex items-center space-x-2 py-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsFeatured(!isFeatured)}
+                    className={cn(
+                      "flex items-center space-x-2 px-3 py-2 rounded-xl border transition-all duration-300",
+                      isFeatured ? "bg-blue-50 border-blue-200 text-blue-600" : "bg-neutral-50 border-neutral-200 text-neutral-400"
+                    )}
+                  >
+                    <Star className={cn("h-4 w-4", isFeatured && "fill-current")} />
+                    <span className="text-sm font-medium">Show on Home Page</span>
+                  </button>
+                </div>
+
                 {uploading && uploadProgress > 0 && (
                   <div className="w-full bg-neutral-100 rounded-full h-2 overflow-hidden">
                     <motion.div 
@@ -412,10 +440,28 @@ export default function Admin() {
                         </div>
                         <div>
                           <h4 className="font-medium text-neutral-900">{art.title}</h4>
-                          <p className="text-xs text-neutral-400 capitalize">{art.type}</p>
+                          <div className="flex items-center space-x-2">
+                            <p className="text-xs text-neutral-400 capitalize">{art.type}</p>
+                            {art.isFeatured && (
+                              <span className="flex items-center text-[10px] text-blue-500 font-bold bg-blue-50 px-1.5 py-0.5 rounded-md">
+                                <Star className="h-2 w-2 mr-1 fill-current" /> FEATURED
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleToggleFeatured(art.id, !!art.isFeatured)}
+                          className={cn(
+                            "rounded-full transition-colors",
+                            art.isFeatured ? "text-blue-500 bg-blue-50 hover:bg-blue-100" : "text-neutral-400 hover:text-blue-500 hover:bg-blue-50"
+                          )}
+                        >
+                          <Star className={cn("h-4 w-4", art.isFeatured && "fill-current")} />
+                        </Button>
                         {deletingId === art.id ? (
                           <div className="flex items-center space-x-2 animate-in fade-in slide-in-from-right-2">
                             <Button 

@@ -2,17 +2,29 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { ArrowRight, Play, Image as ImageIcon, Music } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { collection, query, limit, orderBy, onSnapshot } from 'firebase/firestore';
+import { useEffect, useState, Suspense } from 'react';
+import { collection, query, limit, orderBy, onSnapshot, where } from 'firebase/firestore';
 import { db } from '../firebase';
+import FuturisticBackground from '../components/FuturisticBackground';
 
 export default function Home() {
   const [featured, setFeatured] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const q = query(collection(db, 'artworks'), orderBy('createdAt', 'desc'), limit(3));
+    // We filter by isFeatured == true and limit to 6 as requested
+    const q = query(
+      collection(db, 'artworks'), 
+      where('isFeatured', '==', true),
+      orderBy('createdAt', 'desc'), 
+      limit(6)
+    );
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setFeatured(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching featured artworks:", error);
+      setLoading(false);
     });
     return () => unsubscribe();
   }, []);
@@ -21,7 +33,10 @@ export default function Home() {
     <div className="relative">
       {/* Hero Section */}
       <section className="relative h-[90vh] flex items-center overflow-hidden bg-neutral-900">
-        <div className="absolute inset-0 z-0">
+        <Suspense fallback={null}>
+          <FuturisticBackground />
+        </Suspense>
+        <div className="absolute inset-0 z-0 opacity-20">
           <img 
             src="https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?auto=format&fit=crop&q=80&w=1920" 
             alt="Hero background" 
@@ -81,42 +96,46 @@ export default function Home() {
       </section>
 
       {/* Media Types Section */}
-      <section className="py-24 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-24 bg-neutral-50 relative overflow-hidden border-y border-neutral-100">
+        <Suspense fallback={null}>
+          <FuturisticBackground />
+        </Suspense>
+        
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             <motion.div 
               whileHover={{ y: -10 }}
-              className="p-8 border border-neutral-100 rounded-3xl bg-neutral-50"
+              className="p-8 border border-neutral-200 rounded-3xl bg-white shadow-sm hover:shadow-md transition-all duration-300"
             >
               <div className="w-12 h-12 bg-neutral-900 rounded-2xl flex items-center justify-center mb-6">
                 <ImageIcon className="text-white h-6 w-6" />
               </div>
-              <h3 className="text-xl font-serif font-bold mb-4">Visual Arts</h3>
+              <h3 className="text-xl font-serif font-bold mb-4 text-neutral-900">Visual Arts</h3>
               <p className="text-neutral-500 text-sm leading-relaxed">
                 High-resolution digital paintings, photography, and traditional media captures.
               </p>
             </motion.div>
             <motion.div 
               whileHover={{ y: -10 }}
-              className="p-8 border border-neutral-100 rounded-3xl bg-neutral-50"
+              className="p-8 border border-neutral-200 rounded-3xl bg-white shadow-sm hover:shadow-md transition-all duration-300"
             >
               <div className="w-12 h-12 bg-neutral-900 rounded-2xl flex items-center justify-center mb-6">
                 <Play className="text-white h-6 w-6" />
               </div>
-              <h3 className="text-xl font-serif font-bold mb-4">Cinematics</h3>
-              <p className="text-neutral-500 text-sm leading-relaxed">
+              <h3 className="text-xl font-serif font-bold mb-4 text-neutral-900">Cinematics</h3>
+              <p className="text-neutral-400 text-sm leading-relaxed">
                 Short films, motion graphics, and experimental video installations.
               </p>
             </motion.div>
             <motion.div 
               whileHover={{ y: -10 }}
-              className="p-8 border border-neutral-100 rounded-3xl bg-neutral-50"
+              className="p-8 border border-neutral-200 rounded-3xl bg-white shadow-sm hover:shadow-md transition-all duration-300"
             >
               <div className="w-12 h-12 bg-neutral-900 rounded-2xl flex items-center justify-center mb-6">
                 <Music className="text-white h-6 w-6" />
               </div>
-              <h3 className="text-xl font-serif font-bold mb-4">Soundscapes</h3>
-              <p className="text-neutral-500 text-sm leading-relaxed">
+              <h3 className="text-xl font-serif font-bold mb-4 text-neutral-900">Soundscapes</h3>
+              <p className="text-neutral-400 text-sm leading-relaxed">
                 Immersive audio experiences, ambient compositions, and sound design.
               </p>
             </motion.div>
@@ -163,7 +182,7 @@ export default function Home() {
                   <p className="text-neutral-300 text-sm mt-2 capitalize">{art.type}</p>
                 </div>
               </motion.div>
-            )) : [1, 2, 3].map((i) => (
+            )) : loading ? [1, 2, 3, 4, 5, 6].map((i) => (
               <motion.div 
                 key={i}
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -171,11 +190,15 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="group relative overflow-hidden rounded-3xl aspect-[4/5] bg-neutral-100"
               >
-                <div className="w-full h-full flex items-center justify-center text-neutral-300">
+                <div className="w-full h-full flex items-center justify-center text-neutral-200 animate-pulse">
                   <ImageIcon className="h-12 w-12" />
                 </div>
               </motion.div>
-            ))}
+            )) : (
+              <div className="col-span-full py-20 text-center text-neutral-400 font-serif italic text-xl">
+                 No featured works currently displayed.
+              </div>
+            )}
           </div>
         </div>
       </section>

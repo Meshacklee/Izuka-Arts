@@ -58,14 +58,15 @@ service cloud.firestore {
 
     function isValidArtwork(data) {
       return data.keys().hasAll(['title', 'type', 'url', 'createdAt', 'authorId']) &&
-             data.keys().hasOnly(['title', 'description', 'type', 'url', 'thumbnailUrl', 'createdAt', 'authorId']) &&
+             data.keys().hasOnly(['title', 'description', 'type', 'url', 'thumbnailUrl', 'createdAt', 'authorId', 'isFeatured']) &&
              data.title is string && data.title.size() >= 1 && data.title.size() <= 100 &&
              (!('description' in data) || data.description == null || (data.description is string && data.description.size() <= 1000)) &&
              data.type in ['image', 'video', 'audio'] &&
              isValidUrl(data.url) &&
              (!('thumbnailUrl' in data) || data.thumbnailUrl == null || isValidUrl(data.thumbnailUrl)) &&
              data.createdAt is timestamp &&
-             data.authorId == request.auth.uid;
+             data.authorId == request.auth.uid &&
+             (!('isFeatured' in data) || data.isFeatured is bool);
     }
 
     function isValidUser(data) {

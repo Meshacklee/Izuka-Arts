@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Mail, MapPin, Phone, Send } from 'lucide-react';
 import { toast } from 'sonner';
+import FuturisticBackground from '../components/FuturisticBackground';
 
 export default function Contact() {
   const handleSubmit = (e: React.FormEvent) => {
@@ -13,8 +14,11 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen py-20 bg-neutral-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-20 bg-neutral-50 relative overflow-hidden">
+      <Suspense fallback={null}>
+        <FuturisticBackground />
+      </Suspense>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
             <div>
@@ -31,7 +35,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h4 className="font-bold text-neutral-900">Email</h4>
-                    <p className="text-neutral-500">hello@aura-platform.art</p>
+                    <p className="text-neutral-500">Joychidinma70@gmail.com</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-4">
@@ -39,8 +43,8 @@ export default function Contact() {
                     <MapPin className="h-5 w-5 text-neutral-900" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-neutral-900">Studio</h4>
-                    <p className="text-neutral-500">123 Creative Lane, Arts District<br />New York, NY 10001</p>
+                    <h4 className="font-bold text-neutral-900">Location</h4>
+                    <p className="text-neutral-500">Lagos, Nigeria</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-4">
@@ -49,7 +53,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h4 className="font-bold text-neutral-900">Phone</h4>
-                    <p className="text-neutral-500">+1 (555) 000-1234</p>
+                    <p className="text-neutral-500">+234 8181403422 <br/> +234 816512 5834</p>
                   </div>
                 </div>
               </div>
