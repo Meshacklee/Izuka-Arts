@@ -74,20 +74,29 @@ export default function Navbar() {
 
           <div className="flex items-center space-x-4">
             {user ? (
-              <div className="flex items-center space-x-2">
-                <span className="hidden sm:inline text-xs text-neutral-500">{user.email}</span>
-                <Link to="/admin">
-                   <Button variant="ghost" size="icon" className="rounded-full">
-                    <User className="h-5 w-5" />
+              role === 'admin' ? (
+                <div className="flex items-center space-x-2">
+                  <span className="hidden sm:inline text-xs text-neutral-500">{user.email}</span>
+                  <Link to="/admin">
+                    <Button variant="ghost" size="icon" className="rounded-full">
+                      <User className="h-5 w-5" />
+                    </Button>
+                  </Link>
+                </div>
+              ) : null
+            ) : (
+              <>
+                <Link to="/admin" className="hidden md:block">
+                  <Button variant="outline" size="sm" className="rounded-full px-6">
+                    Login
                   </Button>
                 </Link>
-              </div>
-            ) : (
-              <Link to="/admin">
-                <Button variant="outline" size="sm" className="rounded-full px-6">
-                  Login
-                </Button>
-              </Link>
+                <Link to="/gallery" className="md:hidden">
+                  <Button variant="default" size="sm" className="rounded-full px-6 bg-blue-600 hover:bg-blue-700">
+                    Explore Arts
+                  </Button>
+                </Link>
+              </>
             )}
 
             {/* Mobile menu button */}
