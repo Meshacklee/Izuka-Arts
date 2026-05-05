@@ -48,11 +48,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (currentUser) {
         try {
           const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+          const isDefaultAdmin = currentUser.email === "joychidinma70@gmail.com" || currentUser.email === "fastinsms.com@gmail.com";
+          
           if (userDoc.exists()) {
-            setRole(userDoc.data().role);
+            const storedRole = userDoc.data().role;
+            // Promote to admin if designated but currently a visitor
+            if (isDefaultAdmin && storedRole !== 'admin') {
+              await setDoc(doc(db, 'users', currentUser.uid), { role: 'admin' }, { merge: true });
+              setRole('admin');
+            } else {
+              setRole(storedRole);
+            }
           } else {
             // Default role for new users
-            const isDefaultAdmin = currentUser.email === "joychidinma70@gmail.com" || currentUser.email === "fastinsms.com@gmail.com";
             const newRole = isDefaultAdmin ? 'admin' : 'visitor';
             await setDoc(doc(db, 'users', currentUser.uid), {
               email: currentUser.email,
