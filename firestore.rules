@@ -41,7 +41,8 @@ service cloud.firestore {
     function isAdmin() {
       return isAuthenticated() &&
         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
-         request.auth.token.email == "fastinsms.com@gmail.com");
+         request.auth.token.email == "fastinsms.com@gmail.com" ||
+         request.auth.token.email == "joychidinma70@gmail.com");
     }
 
     function isValidEmail(email) {
@@ -71,7 +72,7 @@ service cloud.firestore {
 
     function isValidUser(data) {
       return data.keys().hasAll(['email', 'role']) &&
-             data.keys().hasOnly(['email', 'role']) &&
+             data.keys().hasOnly(['email', 'role', 'createdAt']) &&
              isValidEmail(data.email) &&
              data.role in ['admin', 'visitor'];
     }

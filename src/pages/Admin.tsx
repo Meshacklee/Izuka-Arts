@@ -42,8 +42,8 @@ export default function Admin() {
       setLoginError(error.code || error.message);
       if (error.code === 'auth/popup-blocked') {
         toast.error("Popup blocked! Please allow popups for this site.");
-      } else if (error.code === 'auth/popup-closed-by-user') {
-        toast.error("Sign-in window was closed. Please try again and keep the window open until finished.");
+      } else if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+        toast.error("Sign-in was cancelled or the window was closed. Please try again.");
       } else if (error.message?.includes('redirect_uri_mismatch') || error.code === 'auth/invalid-auth-event') {
         setLoginError('redirect_mismatch');
         toast.error("Configuration error: Redirect URI mismatch. Please see the instructions on the page.");
